@@ -1,31 +1,90 @@
-# Splash_3_Gem5
+# Splash3-Gem5 Multicore Cache Analysis
 
-codes/ directory contains the compiled Splash 3 benchmarks. The source code comes from the following repository https://github.com/SakalisC/Splash-3 with the citation below.  If you make changes to the source code, you must recompile by calling "make" in the /codes directory. Benchmark files are Splash 3, but the Gem5 splash run file only supports Splash 2 benchmarks, so there are some benchmarks in codes/ that are not supported in the run file.
-  
+This repository contains a gem5-based CE453 Lab 1 project using Splash-3
+benchmarks to study two questions:
 
-Prior to this work, there was already a python run file, run.py, for Splash under configs/splash2. This python file contained non-existent root paths to the benchmarks and did not support a Ruby system. The SPEC benchmark python file spec_se.py under configs/spec did support using a Ruby system. Thus, the changes in run.py are a combination of spec_se.py and run.py.
+1. Whether multicore execution improves performance.
+2. How private L1 cache size affects performance and cache behavior.
 
-Place codes/ wherever you see fit, but update the variable $BASEDIR in codes/Makefile.config to point to where codes/ is located in the Gem5 hierarchy. Currently I have codes/ located in the home directory of Gem5 (where you compile from), so the Makefile.config is configured for that location. 
+The project uses Splash-3 as the workload suite and gem5 in SE mode as the
+simulation platform.
 
-I encountered fopen errors while debugging, so if you encounter an error related to "Error opening a file" check the following. 
-1) Check the file exists. If the error does not say which file, trace the error and print the path. Ensure the path matches how it should be refrerred to from the executing directory (executing directory may not be the Gem5 home directory, check by printing out the executing path from where the opening error occurs).
-2) Check permissions of the file for reading
-3) If the file does not exist, it is possible the code is trying to open an invalid input file. If this is the case, check the run.py benchmark class and verify the input file name matches an input file in codes/{apps,kernel}/{benchmark name}. Note: the -p at the end of the input file represents the number of processors
- 
-The results are stored in m5out/stat.txt
+## What This Project Does
 
-To run a benchmark, use the following example that runs Barnes.
+The experiment is split into two cases.
 
-build/ECE666/gem5.opt configs/splash2/run.py -b Barnes -n 4
+- `case1`: Vary the core count and measure multicore speedup.
+- `case2`: Fix the system at 4 cores and vary the L1 cache size.
 
-To run the benchmark with traces, add --debug-flags=ProtocolTrace after gem5.opt. Beware, the trace will increase simulation time significantly. 
+The selected benchmarks are:
 
+- `barnes`
+- `fft`
+- `lu`
+- `ocean`
+- `radix`
 
+## Repository Structure
 
+- `codes/`
+  Compiled Splash-3 benchmarks and input files.
 
-Splash 3 Source code citation
+- `lab1/`
+  Main experiment workspace.
 
-C. Sakalis, C. Leonardsson, S. Kaxiras, and A. Ros, “Splash-3: A
-properly synchronized benchmark suite for contemporary research,”
-in Performance Analysis of Systems and Software (ISPASS), 2016
-IEEE International Symposium On, IEEE, 2016.
+- `lab1/splash_run*.py`
+  gem5 configuration scripts used to run different experiment settings.
+
+- `lab1/Makefile`
+  Helper targets for running single cases or batched cases.
+
+- `lab1/report_data/`
+  Processed CSV data and plotting scripts for the report.
+
+- `lab1/CE453_lab1/`
+  LaTeX source and figures for the final report.
+
+## Main Results
+
+- `case1_summary.csv`
+  Summarizes speedup, CPI, and cache miss rates when the core count changes.
+
+- `case2_summary.csv`
+  Summarizes performance and miss-rate changes when the L1 size changes.
+
+- `case1_speedup_by_benchmark.png`
+  Grouped bar chart showing multicore speedup across benchmarks.
+
+- `case2_speedup_by_l1size.png`
+  Grouped bar chart showing speedup under different L1 cache sizes.
+
+## How To Run
+
+Run a single benchmark case:
+
+```bash
+cd lab1
+make BENCH=barnes run
+```
+
+Run a batched case:
+
+```bash
+cd lab1
+make CASE=case1 BENCH=barnes burst_run_case1
+```
+
+## Notes
+
+- `lab1/results/` is ignored by Git because it contains large raw simulation
+  outputs.
+- `lab1/report_data/` stores the processed data used in the report.
+- The report figures are regenerated from the CSV files using the plotting
+  scripts in `lab1/report_data/`.
+
+## Reference
+
+C. Sakalis, C. Leonardsson, S. Kaxiras, and A. Ros, “Splash-3: A properly
+synchronized benchmark suite for contemporary research,” in \textit{IEEE
+International Symposium on Performance Analysis of Systems and Software
+(ISPASS)}, 2016.
